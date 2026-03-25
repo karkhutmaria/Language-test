@@ -60,23 +60,33 @@
     });
 
     const welcome = {
-        type: jsPsychHtmlKeyboardResponse,
-        stimulus: `
-            <h1>Добро пожаловать!</h1>
-            <p>Вам будет предложено 10 вопросов</p>
-            <p>Нажмите пробел или нажмите кнопку ниже, чтобы начать</p>
-            <button id="start-button" class="jspsych-btn" style="margin-top:20px;">Начать</button>
-        `,
-        choices: [' '],
-        on_load: function(trial) {
-            const startButton = document.getElementById('start-button');
-            if (startButton) {
-                startButton.addEventListener('click', function() {
-                    jsPsych.finishTrial({response: ' '});
-                });
-            }
-        }
+        type: jsPsychHtmlButtonResponse,
+        stimulus: '<h1>Добро пожаловать!</h1><p>Вам будет предложено 10 вопросов.</p>',
+        choices: ['Начать'],
+        button_html: '<button class="jspsych-btn" style="margin:10px; padding:10px 20px;">%choice%</button>'
     };
+
+    const questionTrials = [];
+    for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const plainText = q.text.replace(/<[^>]*>/g, '').replace(/^\d+\.\s*/, '');
+        (function(choicesArray, promptText, plain) {
+            questionTrials.push({
+                type: jsPsychHtmlButtonResponse,
+                stimulus: `<h2>${promptText}</h2>`,
+                choices: choicesArray,
+                button_html: '<button class="jspsych-btn" style="margin:10px; padding:10px 20px;">%choice%</button>',
+                data: {
+                    trial_id: `question_${i+1}`,
+                    question_text: plain
+                },
+                on_finish: function(data) {
+                    const selectedWord = choicesArray[data.response];
+                    data.response = selectedWord;
+                }
+            });
+        })(q.choices, q.text, plainText);
+    }
 
 
     const questionTrials = [];
