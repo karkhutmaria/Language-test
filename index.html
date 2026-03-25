@@ -1,24 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Мой jsPsych тест с таймером</title>
+    <title>Тест на время реакции</title>
     <script src="https://unpkg.com/jspsych@7.3.4"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.3"></script>
     <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.3"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.3"></script>
     <link href="https://unpkg.com/jspsych@7.3.4/css/jspsych.css" rel="stylesheet" type="text/css" />
     <style>
-        .results-container {
-            margin-top: 30px;
-            padding: 20px;
-            border-top: 2px solid #ccc;
-            background-color: #f9f9f9;
-        }
         .results-table {
-            margin: 0 auto;
+            margin: 20px auto;
             border-collapse: collapse;
             width: 80%;
+            font-family: sans-serif;
         }
         .results-table th, .results-table td {
             border: 1px solid #ddd;
@@ -28,111 +21,107 @@
         .results-table th {
             background-color: #f2f2f2;
         }
-        h2 {
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        .thanks-message {
             text-align: center;
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <div id="jspsych-target"></div>
-    <div id="results-placeholder" style="margin: 20px;"></div>
+<div id="jspsych-target"></div>
 
-    <script>
-        const questions = [
-            { stimulus: `<h2>1. Выберите недостающее слово: десятинный/ая/ое _______</h2>`, choices: ['Собор', 'Храм', 'Церковь', 'Монастырь'], correct: 'Церковь' },
-            { stimulus: `<h2>2. Выберите недостающее слово: посильный/ая/ое _______</h2>`, choices: ['Помощь', 'Союз', 'Защита', 'Забота'], correct: 'Помощь' },
-            { stimulus: `<h2>3. Выберите недостающее слово:<br>несбыточный/ая/ое _______</h2>`, choices: ['Цель', 'Надежда', 'Вера', 'Мечта'], correct: 'Мечта' },
-            { stimulus: `<h2>4. Выберите недостающее слово:<br>праздничный/ая/ое _______</h2>`, choices: ['Кровать', 'Диван', 'Стул', 'Стол'], correct: 'Стол' },
-            { stimulus: `<h2>5. Выберите недостающее слово:<br>бальный/ая/ое _______</h2>`, choices: ['Костюм', 'Платье', 'Пальто', 'Штаны'], correct: 'Платье' },
-            { stimulus: `<h2>6. Выберите слово, соответсвуюющее следующему определению:<br>"Одна из двух верхних конечностей человека, от плеча до конца пальцев"</h2>`, choices: ['Нога', 'Рука', 'Голова', 'Глаз'], correct: 'Рука' },
-            { stimulus: `<h2>7. Выберите слово, соответсвуюющее следующему определению:<br>"Чувство удовольствия, внутреннего удовлетворения, веселое настроение"</h2>`, choices: ['Любовь', 'Страсть', 'Радость', 'Восторг'], correct: 'Радость' },
-            { stimulus: `<h2>8. Выберите слово, соответсвуюющее следующему определению:<br>"Умственный расчет, предположение, соображение"</h2>`, choices: ['Мысль', 'Идея', 'Мнение', 'Знание'], correct: 'Мысль' },
-            { stimulus: `<h2>9. Выберите слово, соответсвуюющее следующему определению:<br>"Многолетнее растение с твердым стволом и ветвями, образующими крону"</h2>`, choices: ['Цветок', 'Трава', 'Куст', 'Дерево'], correct: 'Дерево' },
-            { stimulus: `<h2>10. Выберите слово, соответсвуюющее следующему определению:<br>"Бестолковая беготня, торопливость в хлопотах, заботах, сборах, работе и т.п."</h2>`, choices: ['Безумие', 'Шалость', 'Суета', 'Буйство'], correct: 'Суета' }
-        ];
+<script>
+    // Массив из 10 вопросов
+    const questions = [
+        { stimulus: `<h2>1. Выберите недостающее слово: десятинный/ая/ое _______</h2>`, choices: ['Собор', 'Храм', 'Церковь', 'Монастырь'], correct: 'Церковь' },
+        { stimulus: `<h2>2. Выберите недостающее слово: посильный/ая/ое _______</h2>`, choices: ['Помощь', 'Союз', 'Защита', 'Забота'], correct: 'Помощь' },
+        { stimulus: `<h2>3. Выберите недостающее слово:<br>несбыточный/ая/ое _______</h2>`, choices: ['Цель', 'Надежда', 'Вера', 'Мечта'], correct: 'Мечта' },
+        { stimulus: `<h2>4. Выберите недостающее слово:<br>праздничный/ая/ое _______</h2>`, choices: ['Кровать', 'Диван', 'Стул', 'Стол'], correct: 'Стол' },
+        { stimulus: `<h2>5. Выберите недостающее слово:<br>бальный/ая/ое _______</h2>`, choices: ['Костюм', 'Платье', 'Пальто', 'Штаны'], correct: 'Платье' },
+        { stimulus: `<h2>6. Выберите слово, соответсвуюющее следующему определению:<br>"Одна из двух верхних конечностей человека, от плеча до конца пальцев"</h2>`, choices: ['Нога', 'Рука', 'Голова', 'Глаз'], correct: 'Рука' },
+        { stimulus: `<h2>7. Выберите слово, соответсвуюющее следующему определению:<br>"Чувство удовольствия, внутреннего удовлетворения, веселое настроение"</h2>`, choices: ['Любовь', 'Страсть', 'Радость', 'Восторг'], correct: 'Радость' },
+        { stimulus: `<h2>8. Выберите слово, соответсвуюющее следующему определению:<br>"Умственный расчет, предположение, соображение"</h2>`, choices: ['Мысль', 'Идея', 'Мнение', 'Знание'], correct: 'Мысль' },
+        { stimulus: `<h2>9. Выберите слово, соответсвуюющее следующему определению:<br>"Многолетнее растение с твердым стволом и ветвями, образующими крону"</h2>`, choices: ['Цветок', 'Трава', 'Куст', 'Дерево'], correct: 'Дерево' },
+        { stimulus: `<h2>10. Выберите слово, соответсвуюющее следующему определению:<br>"Бестолковая беготня, торопливость в хлопотах, заботах, сборах, работе и т.п."</h2>`, choices: ['Безумие', 'Шалость', 'Суета', 'Буйство'], correct: 'Суета' }
+    ];
 
-        function sendDataToSheet(experimentData) {
-            const allQuestions = experimentData.filter({trial_id: /question_\d+/}).values();
-            if (allQuestions.length === 0) return;
-            const rowsToSend = allQuestions.map(trial => ({
-                question: trial.question_text,
-                response: trial.response,
-                rt: trial.rt,
-                correct: trial.correct ? "Да" : "Нет",
-                timestamp: new Date().toISOString()
-            }));
-            fetch('https://sheetdb.io/api/v1/67o9oqw8o6f3v', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ data: rowsToSend })
-            })
-            .then(response => response.json())
-            .then(data => console.log('Успешно отправлено:', data))
-            .catch(error => console.error('Ошибка отправки:', error));
-        }
+    // Инициализируем jsPsych (без on_finish, потому что результаты будут показаны в последнем испытании)
+    var jsPsych = initJsPsych({
+        display_element: 'jspsych-target'
+    });
 
-        var jsPsych = initJsPsych({
-            display_element: 'jspsych-target',
-            on_finish: function() {
-                var experimentData = jsPsych.data.get();
-                var questionTrials = experimentData.filter({trial_id: /question_\d+/}).values();
+    // Функция для построения HTML с результатами
+    function buildResultsHTML() {
+        var data = jsPsych.data.get().values();
+        var questionData = data.filter(trial => trial.trial_id && trial.trial_id.startsWith('question_'));
+        
+        var html = '<div class="thanks-message"><h1>Спасибо за участие!</h1></div>';
+        html += '<h2 style="text-align:center;">Ваши результаты</h2>';
+        html += '<table class="results-table">';
+        html += '<tr><th>Вопрос</th><th>Ваш ответ</th><th>Время реакции (мс)</th><th>Правильно</th></tr>';
+        
+        questionData.forEach(trial => {
+            var correctClass = trial.correct ? 'correct' : 'incorrect';
+            var correctText = trial.correct ? 'Да' : 'Нет';
+            html += `<tr>
+                        <td>${trial.question_text}</td>
+                        <td>${trial.response || '(нет ответа)'}</td>
+                        <td>${Math.round(trial.rt)}</td>
+                        <td class="${correctClass}">${correctText}</td>
+                     </tr>`;
+        });
+        html += '</table>';
+        return html;
+    }
 
-                if (questionTrials.length > 0) {
-                    let html = '<div style="margin: 20px; padding: 20px; background: #fff; border: 2px solid #333;">';
-                    html += '<h2>Результаты теста</h2>';
-                    html += '<table border="1" cellpadding="5" style="border-collapse:collapse; width:100%;">';
-                    html += '<tr><th>Вопрос</th><th>Ваш ответ</th><th>Время (мс)</th><th>Правильно</th></tr>';
-                    questionTrials.forEach(trial => {
-                        html += `<tr>
-                                    <td>${trial.question_text || "?"}</td>
-                                    <td>${trial.response || "(нет ответа)"}</td>
-                                    <td>${Math.round(trial.rt)}</td>
-                                    <td>${trial.correct ? "Да" : "Нет"}</td>
-                                 </tr>`;
-                    });
-                    html += '</table></div>';
-                    document.getElementById('jspsych-target').innerHTML = html;
-                }
+    // Приветствие
+    var welcome = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: '<h1>Добро пожаловать!</h1><p>Вам будет предложено 10 вопросов.</p><p>Нажмите пробел, чтобы начать.</p>',
+        choices: [' ']
+    };
 
-                sendDataToSheet(experimentData);
+    // Создание вопросов
+    var questionTrials = [];
+    for (var i = 0; i < questions.length; i++) {
+        var q = questions[i];
+        var plainText = q.stimulus.replace(/<[^>]*>/g, '').replace(/^\d+\.\s*/, '');
+        questionTrials.push({
+            type: jsPsychHtmlButtonResponse,
+            stimulus: q.stimulus,
+            choices: q.choices,
+            button_html: '<button class="jspsych-btn" style="margin:10px; padding:10px 20px;">%choice%</button>',
+            data: {
+                trial_id: 'question_' + (i+1),
+                question_text: plainText,
+                correct_answer: q.correct
+            },
+            on_finish: function(data) {
+                data.correct = (data.response === data.correct_answer);
             }
-        });      
+        });
+    }
 
-        var welcome = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: `<h1>Добро пожаловать!</h1><p>Вам будет предложено 10 вопросов</p><p>Нажмите пробел, чтобы начать.</p>`,
-            choices: [' ']
-        };
+    // Финальное испытание: спасибо и результаты
+    var finalScreen = {
+        type: jsPsychHtmlKeyboardResponse,
+        stimulus: function() {
+            return buildResultsHTML();
+        },
+        choices: [' '],  // или любой другой способ завершить, например, можно дать кнопку
+        trial_duration: null  // показываем, пока пользователь не нажмёт пробел
+    };
 
-        var questionTrials = [];
-        for (let i = 0; i < questions.length; i++) {
-            const q = questions[i];
-            // Extract plain text question (remove HTML tags and the number prefix)
-            let plainText = q.stimulus.replace(/<[^>]*>/g, '').replace(/^\d+\.\s*/, '');
-            questionTrials.push({
-                type: jsPsychHtmlButtonResponse,
-                stimulus: q.stimulus,
-                choices: q.choices,
-                button_html: '<button class="jspsych-btn" style="margin:10px; padding:10px 20px;">%choice%</button>',
-                data: {
-                    trial_id: `question_${i+1}`,
-                    question_text: plainText,
-                    correct_answer: q.correct
-                },
-                on_finish: function(data) {
-                    data.correct = (data.response === data.correct_answer);
-                }
-            });
-        }
-
-        var thanks = {
-            type: jsPsychHtmlKeyboardResponse,
-            stimulus: `<h1>Спасибо за участие!</h1><p>Ваши данные сохранены.</p><p>Результаты появятся ниже.</p>`,
-            choices: [' '],
-            trial_duration: 3000
-        };
-
-        jsPsych.run([welcome, ...questionTrials, thanks]);
-    </script>
+    // Запуск: приветствие → 10 вопросов → финальный экран с результатами
+    jsPsych.run([welcome, ...questionTrials, finalScreen]);
+</script>
 </body>
 </html>
