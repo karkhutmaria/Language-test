@@ -89,29 +89,6 @@
     }
 
 
-    const questionTrials = [];
-    for (let i = 0; i < questions.length; i++) {
-        const q = questions[i];
-        const plainText = q.text.replace(/<[^>]*>/g, '').replace(/^\d+\.\s*/, '');
-        (function(choicesArray, promptText, plain) {
-            questionTrials.push({
-                type: jsPsychHtmlButtonResponse,
-                stimulus: `<h2>${promptText}</h2>`,
-                choices: choicesArray,
-                button_html: '<button class="jspsych-btn" style="margin:10px; padding:10px 20px;">%choice%</button>',
-                data: {
-                    trial_id: `question_${i+1}`,
-                    question_text: plain
-                },
-                on_finish: function(data) {
-                    // data.response is the index (0..n-1); we replace it with the actual word
-                    const selectedWord = choicesArray[data.response];
-                    data.response = selectedWord;
-                }
-            });
-        })(q.choices, q.text, plainText);
-    }
-
     const thanks = {
         type: jsPsychHtmlKeyboardResponse,
         stimulus: '<h1>Спасибо за участие!</h1><p>Ваши ответы появятся ниже.</p>',
