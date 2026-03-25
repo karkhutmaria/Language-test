@@ -26,7 +26,7 @@
 <div id="results"></div>
 
 <script>
-    // Вопросы (только текст и варианты)
+    // 10 вопросов (только текст и варианты)
     const questions = [
         { text: "1. Выберите недостающее слово: десятинный/ая _______", choices: ['Собор', 'Храм', 'Церковь', 'Монастырь'] },
         { text: "2. Выберите недостающее слово: посильный/ая/ое _______", choices: ['Помощь', 'Союз', 'Защита', 'Забота'] },
@@ -44,17 +44,16 @@
         display_element: 'jspsych-target',
         on_finish: function() {
             const allData = jsPsych.data.get().values();
-            // Берём только данные вопросов
             const questionData = allData.filter(t => t.trial_id && t.trial_id.startsWith('question_'));
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '<h2>Ваши ответы</h2>';
             questionData.forEach(trial => {
                 const item = document.createElement('div');
                 item.className = 'result-item';
-                // Показываем вопрос, выбранное СЛОВО и время реакции
+                // trial.response теперь содержит выбранное слово (благодаря on_finish)
                 item.innerHTML = `
                     <p><strong>${trial.question_text}</strong></p>
-                    <p>Выбрано слово: <strong>${trial.response || '(не выбрано)'}</strong></p>
+                    <p>Выбрано слово: <strong>${trial.response}</strong></p>
                     <p>Время реакции: ${Math.round(trial.rt)} мс</p>
                 `;
                 resultsDiv.appendChild(item);
@@ -72,20 +71,25 @@
     for (let i = 0; i < questions.length; i++) {
         const q = questions[i];
         const plainText = q.text.replace(/<[^>]*>/g, '').replace(/^\d+\.\s*/, '');
-        // Используем IIFE для сохранения текста вопроса
-        (function(promptText, plain) {
+        // Замыкание, чтобы захватить массив choices для этого вопроса
+        (function(choicesArray, promptText, plain) {
             questionTrials.push({
                 type: jsPsychHtmlButtonResponse,
                 stimulus: `<h2>${promptText}</h2>`,
-                choices: q.choices,
+                choices: choicesArray,
                 button_html: '<button class="jspsych-btn" style="margin:10px; padding:10px 20px;">%choice%</button>',
                 data: {
                     trial_id: `question_${i+1}`,
                     question_text: plain
+                },
+                on_finish: function(data) {
+                    // data.response – это индекс нажатой кнопки (0,1,2,3)
+                    const selectedWord = choicesArray[data.response];
+                    // Заменяем индекс на само слово
+                    data.response = selectedWord;
                 }
-                // Здесь нет on_finish — всё уже сохраняется автоматически
             });
-        })(q.text, plainText);
+        })(q.choices, q.text, plainText);
     }
 
     const thanks = {
