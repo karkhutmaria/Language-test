@@ -74,39 +74,29 @@
         var jsPsych = initJsPsych({
             display_element: 'jspsych-target',
             on_finish: function() {
-                console.log("on_finish вызван");
                 var experimentData = jsPsych.data.get();
-                // Log all trial ids to see if they match
-                console.log("All trial ids:", experimentData.values().map(t => t.trial_id));
-                
                 var questionTrials = experimentData.filter({trial_id: /question_\d+/}).values();
-                console.log("Найдено вопросов:", questionTrials.length);
-                
+
                 if (questionTrials.length > 0) {
-                    let html = '<div class="results-container">';
+                    let html = '<div style="margin: 20px; padding: 20px; background: #fff; border: 2px solid #333;">';
                     html += '<h2>Результаты теста</h2>';
-                    html += '<table class="results-table">';
-                    html += '<tr><th>Вопрос</th><th>Ваш ответ</th><th>Время реакции (мс)</th><th>Правильно</th></tr>';
-                    
-                    questionTrials.forEach(function(trial) {
-                        html += '<tr>';
-                        html += '<td>' + (trial.question_text || "?") + '</td>';
-                        html += '<td>' + (trial.response || "(нет ответа)") + '</td>';
-                        html += '<td>' + Math.round(trial.rt) + '</td>';
-                        html += '<td>' + (trial.correct ? "Да" : "Нет") + '</td>';
-                        html += '</tr>';
+                    html += '<table border="1" cellpadding="5" style="border-collapse:collapse; width:100%;">';
+                    html += '<tr><th>Вопрос</th><th>Ваш ответ</th><th>Время (мс)</th><th>Правильно</th></tr>';
+                    questionTrials.forEach(trial => {
+                        html += `<tr>
+                                    <td>${trial.question_text || "?"}</td>
+                                    <td>${trial.response || "(нет ответа)"}</td>
+                                    <td>${Math.round(trial.rt)}</td>
+                                    <td>${trial.correct ? "Да" : "Нет"}</td>
+                                 </tr>`;
                     });
                     html += '</table></div>';
-                    
-                    // Append to the placeholder div, not directly to body
-                    document.getElementById('results-placeholder').innerHTML = html;
-                } else {
-                    document.getElementById('results-placeholder').innerHTML = '<p>Не удалось найти данные вопросов.</p>';
+                    document.getElementById('jspsych-target').innerHTML = html;
                 }
-                
+
                 sendDataToSheet(experimentData);
             }
-        });
+        });      
 
         var welcome = {
             type: jsPsychHtmlKeyboardResponse,
