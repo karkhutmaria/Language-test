@@ -83,18 +83,18 @@
         var test_question = {
             type: jsPsychHtmlButtonResponse,
             stimulus: `
-                <h2>Какой это цвет?</h2>
+                <h2>Выберите недостающее слово: десятинный/ая _______</h2>
                 <img src='https://via.placeholder.com/150/0000FF/808080?text=Blue' style='width:150px;height:150px;'>
                 <p><i>(время пошло...)</i></p>
             `,
-            choices: ['Синий', 'Красный', 'Зеленый', 'Желтый'],
+            choices: ['Собор', 'Храм', 'Церковь', 'Монастырь'],
             button_html: '<button class="jspsych-btn" style="margin:10px; padding:10px 20px;">%choice%</button>',
             data: {
                 trial_id: 'test_question',
-                correct_answer: 'Синий'
+                correct_answer: 'Церковь'
             },
             on_finish: function(data) {
-                data.correct = data.response === 'Синий';
+                data.correct = data.response === 'Церковь';
             }
         };
 
