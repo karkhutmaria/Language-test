@@ -123,31 +123,33 @@
         var jsPsych = initJsPsych({
             display_element: 'jspsych-target',
             on_finish: function() {
-                // Получаем все данные
+        // Get all data
                 var experimentData = jsPsych.data.get();
-
-                // Показываем данные в консоли
-                console.log("Результаты эксперимента:", experimentData.json());
-
-                // ---- Отображение таблицы результатов (новая часть) ----
-                const questionTrials = experimentData.filter({trial_id: /question_\d+/}).values();
+        
+        // Filter only the question trials (they have trial_id like "question_1", "question_2", ...)
+                var questionTrials = experimentData.filter({trial_id: /question_\d+/}).values();
+        
                 if (questionTrials.length > 0) {
-                    let html = '<h2>Результаты теста</h2>';
-                    html += '<table class="results-table">';
+            // Build HTML table
+                    var html = '<h2>Результаты теста</h2>';
+                    html += '<table border="1" cellpadding="5" cellspacing="0" style="margin:20px auto; border-collapse:collapse;">';
                     html += '<tr><th>Вопрос</th><th>Ваш ответ</th><th>Время реакции (мс)</th><th>Правильно</th></tr>';
-                    questionTrials.forEach(trial => {
-                        html += `<tr>
-                                    <td>${trial.question_text}</td>
-                                    <td>${trial.response || "(нет ответа)"}</td>
-                                    <td>${Math.round(trial.rt)}</td>
-                                    <td>${trial.correct ? "✅ Да" : "❌ Нет"}</td>
-                                 </tr>`;
+            
+                    questionTrials.forEach(function(trial) {
+                        html += '<tr>';
+                        html += '<td>' + trial.question_text + '</td>';
+                        html += '<td>' + (trial.response || "(нет ответа)") + '</td>';
+                        html += '<td>' + Math.round(trial.rt) + '</td>';
+                        html += '<td>' + (trial.correct ? "Да" : "Нет") + '</td>';
+                        html += '</tr>';
                     });
                     html += '</table>';
+            
+            // Append the table to the body (or a specific container)
                     document.body.innerHTML += html;
                 }
-
-                // Отправляем данные в Google Sheets
+        
+        // (Optional) Also send data to SheetDB as before
                 sendDataToSheet(experimentData);
             }
         });
